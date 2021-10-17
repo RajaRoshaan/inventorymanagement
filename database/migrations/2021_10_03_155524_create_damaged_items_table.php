@@ -19,12 +19,11 @@ class CreateDamagedItemsTable extends Migration
             $table->foreign('inventory_id')->references('id')->on('inventories')->onDelete('cascade');
             $table->string('description');
             $table->string('status');
-            $table->boolean('repaired');
-            $table->bigInteger('person_id')->unsigned();
-            $table->foreign('person_id')->references('id')->on('persons')->onDelete('cascade');
-            $table->bigInteger('office_id')->unsigned();
-            $table->foreign('office_id')->references('id')->on('offices')->onDelete('cascade');
+            $table->boolean('repaired')->default(0)->nullable();
+            $table->bigInteger('allocation_id')->unsigned()->nullable();
+            $table->foreign('allocation_id')->references('id')->on('allocations')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

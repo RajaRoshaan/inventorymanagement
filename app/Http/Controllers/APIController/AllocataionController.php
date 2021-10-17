@@ -5,6 +5,7 @@ namespace App\Http\Controllers\APIController;
 use App\Http\Controllers\Controller;
 use App\Models\Allocation;
 use App\Models\Inventory;
+use App\Models\Person;
 use App\Rules\OfficeOrPerson;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -18,6 +19,17 @@ class AllocataionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
+    {
+        //
+        return $allocation = Allocation::with('office', 'person', 'inventory')->where('deallocated', '<>', 1)->orWhereNull('deallocated')->get();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function allocations_including_deallocated()
     {
         //
         return $allocation = Allocation::with('office', 'person', 'inventory')->get();
@@ -81,6 +93,23 @@ class AllocataionController extends Controller
     public function show($id)
     {
         //
+        return Allocation::with('office', 'person', 'inventory')->find($id);
+    }
+
+    /**
+     * Search the specified resource.
+     * @param  string $text
+     * @return \Illuminate\Http\Response
+     */
+    public function SearchPersonName(string $text)
+    {
+        $persons = Person::where('name', 'like', '%'.$text.'%')->get();
+        $allocations = collect();
+        /*foreach($persons as $person){
+            $allocations->push(
+        }*/
+        $allocations->push(Allocation::with('person', 'inventory')->where('person_id', '==', $persons->get(0)->id));
+        return $allocations;
     }
 
     /**
@@ -110,6 +139,13 @@ class AllocataionController extends Controller
             'inventory_id' => 'required|numeric'
         ]);
 
+        $allocation = Allocation::find($id);
+        $allocation->office_id = $request->get('office_id');
+        $allocation->person_id = $request->get('person_id');
+        $allocation->inventory_id = $request->get('inventory_id');
+        $allocation->update();
+        return $allocation;
+
         
     }
 
@@ -125,7 +161,7 @@ class AllocataionController extends Controller
         $allocation = Allocation::find($id);
         $allocation->deallocated = 1;
         $allocation->inventory->increment('number_of_items');
-        $allocation->update();
-        return Allocation::destroy($id);
+        $allocation->deallocation_date = Carbon::now();
+        return $allocation->update();;
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\APIController\AllocataionController;
 use App\Http\Controllers\APIController\AttributeController;
 use App\Http\Controllers\APIController\AuthController;
 use App\Http\Controllers\APIController\CategoryController;
+use App\Http\Controllers\APIController\DamagedItemController;
 use App\Http\Controllers\APIController\DepartmentController;
 use App\Http\Controllers\APIController\InventoryController;
 use App\Http\Controllers\APIController\OfficeController;
@@ -77,12 +78,25 @@ Route::get('/show-person/{id}', [PersonController::class, 'show']);
 //search by name
 Route::get('/search-person/{text}', [PersonController::class, 'search']);
 
-//Persons
-//get all
+//Allocations
+//get allocations
 Route::get('/allocations', [AllocataionController::class, 'index']);
+//get all
+Route::get('/all-allocations', [AllocataionController::class, 'allocations_including_deallocated']);
 //show by id
-Route::get('/show-person/{id}', [PersonController::class, 'show']);
+Route::get('/show-allocation/{id}', [AllocataionController::class, 'show']);
+//show by person name
+Route::get('/person-allocation/{text}', [AllocataionController::class, 'SearchPersonName']);
+//show by office name
+Route::get('/office-allocation/{text}', [AllocataionController::class, 'SearchOfficeName']);
 
+//Damaged Items
+//get damaged
+Route::get('/damaged-items', [DamagedItemController::class, 'index']);
+//get all damaged including repaired
+Route::get('/all-damaged-items', [DamagedItemController::class, 'damaged_including_repaired']);
+//show by id
+Route::get('/show-damaged-item/{id}', [DamagedItemController::class, 'show']);
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
 
@@ -145,6 +159,14 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::put('/update-allocation/{id}', [AllocataionController::class, 'update']);
     //delete
     Route::delete('/delete-allocation/{id}', [AllocataionController::class, 'destroy']);
+
+    //Damaged Items
+    //add
+    Route::post('/add-damaged-item', [DamagedItemController::class, 'create']);
+    //update
+    Route::put('/update-damaged-item/{id}', [DamagedItemController::class, 'update']);
+    //delete
+    Route::delete('/delete-damaged-item/{id}', [DamagedItemController::class, 'destroy']);
 
 });
 
